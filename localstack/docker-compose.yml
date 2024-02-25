@@ -14,3 +14,19 @@ services:
       - '${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack'
       - '/var/run/docker.sock:/var/run/docker.sock'
       - './init/init.sh:/etc/localstack/init/ready.d/init-aws.sh'
+  postgres:
+    image: postgres:12-alpine
+    restart: always
+    volumes:
+      - ./dbdata:/docker-entrypoint-initdb.d
+      - ./pgdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: example
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
