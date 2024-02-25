@@ -9,7 +9,7 @@ import (
 func main() {
 	router := gin.Default()
 	router.GET("/device/:id", handler.GetDevice)
-	// router.POST("/device", handler.CreateDevice)
+	router.POST("/device", handler.CreateDevice)
 	// router.PUT("/payment/:id", handler.ConfigureDevice)
 	// router.PUT("/payment/:id/activate", handler.ActivateDevice)
 	// router.PUT("/payment/:id/deactivate", handler.ActivateDevice)

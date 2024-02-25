@@ -5,11 +5,11 @@ import (
 )
 
 type DeviceConfig struct {
-	IsEnabled     bool   `json:"isEnabled"`
-	IsInteractive bool   `json:"isInteractive"`
-	Connection    string `json:"connection"`
-	SendFrequency string `json:"sendFrequency"`
-	Version       string `json:"version"`
+	IsEnabled     bool   `json:"isEnabled,omitempty"`
+	IsInteractive bool   `json:"isInteractive,omitempty"`
+	Connection    string `json:"connection,omitempty"`
+	SendFrequency string `json:"sendFrequency,omitempty"`
+	Version       string `json:"version,omitempty"`
 }
 
 type Device struct {
@@ -19,4 +19,9 @@ type Device struct {
 	Config    DeviceConfig `json:"config"`
 	CreatedAt time.Time    `json:"createdAt"`
 	UpdatedAt time.Time    `json:"updatedAt"`
+}
+
+type CreateDeviceDTO struct {
+	Class  string       `json:"class" validate:"required"`
+	Config DeviceConfig `json:"config"`
 }

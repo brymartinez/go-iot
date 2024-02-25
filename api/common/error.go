@@ -19,3 +19,10 @@ func NotFoundError(c *gin.Context) {
 		"message": "Not found",
 	})
 }
+
+func BadRequestError(c *gin.Context, errorField string) {
+	c.IndentedJSON(http.StatusBadRequest, gin.H{
+		"error":   1001,
+		"message": "Error validating " + errorField,
+	})
+}
