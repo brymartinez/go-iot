@@ -32,6 +32,29 @@ func constructErrorMessage(err error) string {
 	return string(jsonErrMsg)
 }
 
+func setDefaultValues(config *model.DeviceConfig) {
+	if config.IsEnabled == nil {
+		defaultValue := true
+		config.IsEnabled = &defaultValue
+	}
+	if config.IsInteractive == nil {
+		defaultValue := true
+		config.IsInteractive = &defaultValue
+	}
+	if config.SendFrequency == nil {
+		defaultValue := "5m"
+		config.SendFrequency = &defaultValue
+	}
+	if config.Connection == nil {
+		defaultValue := ""
+		config.Connection = &defaultValue
+	}
+	if config.Version == nil {
+		defaultValue := ""
+		config.Version = &defaultValue
+	}
+}
+
 func CreateDevice(c *gin.Context) {
 	var requestBody model.CreateDeviceDTO
 
@@ -42,25 +65,8 @@ func CreateDevice(c *gin.Context) {
 		return
 	}
 
-	// Track whether fields were provided in the request body
-	var isEnabledProvided, isInteractiveProvided, sendFrequencyProvided, connectionProvided, versionProvided bool
-
-	// Check if fields were provided and set default values if necessary
-	if !isEnabledProvided && requestBody.Config.IsEnabled == false {
-		requestBody.Config.IsEnabled = true
-	} // TODO - WRONG
-	if !isInteractiveProvided && requestBody.Config.IsInteractive == false {
-		requestBody.Config.IsInteractive = true
-	} // TODO - WRONG
-	if !sendFrequencyProvided && requestBody.Config.SendFrequency == "" {
-		requestBody.Config.SendFrequency = "5m"
-	}
-	if !connectionProvided && requestBody.Config.Connection == "" {
-		requestBody.Config.Connection = ""
-	} // TODO - WRONG
-	if !versionProvided && requestBody.Config.Version == "" {
-		requestBody.Config.Version = ""
-	} // TODO - WRONG
+	// Set default values for fields if they are not provided
+	setDefaultValues(&requestBody.Config)
 
 	validate := validator.New()
 	if err := validate.Struct(requestBody); err != nil {

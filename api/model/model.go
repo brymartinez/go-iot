@@ -5,11 +5,11 @@ import (
 )
 
 type DeviceConfig struct {
-	IsEnabled     bool   `json:"isEnabled,omitempty"`
-	IsInteractive bool   `json:"isInteractive,omitempty"`
-	Connection    string `json:"connection,omitempty"`
-	SendFrequency string `json:"sendFrequency,omitempty"`
-	Version       string `json:"version,omitempty"`
+	IsEnabled     *bool   `json:"isEnabled,omitempty"`
+	IsInteractive *bool   `json:"isInteractive,omitempty"`
+	Connection    *string `json:"connection,omitempty"`
+	SendFrequency *string `json:"sendFrequency,omitempty"`
+	Version       *string `json:"version,omitempty"`
 }
 
 type Device struct {
