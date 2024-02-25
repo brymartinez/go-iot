@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go-iot/api/common"
 	"go-iot/api/model"
+	"go-iot/api/service"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -73,6 +74,7 @@ func CreateDevice(c *gin.Context) {
 	}
 
 	var device model.Device
+	device.ID = service.IDGenerator(requestBody.Class)
 	device.Status = "PROVISIONED"
 	device.Config = requestBody.Config
 	device.CreatedAt = time.Now()
