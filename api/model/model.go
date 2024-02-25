@@ -15,6 +15,7 @@ type DeviceConfig struct {
 type Device struct {
 	ID        int          `json:"-"`
 	PublicID  string       `json:"id" db:"public_id"`
+	SerialNo  string       `json:"serialNo"`
 	Status    string       `json:"status"`
 	Class     string       `json:"class"`
 	Name      string       `json:"name"`
@@ -24,7 +25,8 @@ type Device struct {
 }
 
 type CreateDeviceDTO struct {
-	Class  string       `json:"class" validate:"required"`
-	Name   string       `json:"name" validate:"required"`
-	Config DeviceConfig `json:"config"`
+	SerialNo string       `json:"serialNo" validate:"required"`
+	Class    string       `json:"class" validate:"required"`
+	Name     string       `json:"name" validate:"required"`
+	Config   DeviceConfig `json:"config"`
 }

@@ -92,6 +92,7 @@ func CreateDevice(c *gin.Context) {
 	device.Status = "PROVISIONED"
 	device.Config = requestBody.Config
 	device.Class = requestBody.Class
+	device.SerialNo = requestBody.SerialNo
 	device.Name = requestBody.Name
 	device.CreatedAt = time.Now()
 	device.UpdatedAt = time.Now()
