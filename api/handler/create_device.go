@@ -62,7 +62,6 @@ func CreateDevice(c *gin.Context) {
 		// DO SOMETHING WITH THE ERROR
 		fmt.Printf("Error parsing body, %d", err)
 		common.InternalServerError(c)
-		return
 	}
 
 	// Set default values for fields if they are not provided
@@ -73,7 +72,6 @@ func CreateDevice(c *gin.Context) {
 		// Construct error message
 		errMsg := constructErrorMessage(err)
 		common.BadRequestError(c, errMsg)
-		return
 	}
 
 	fmt.Printf("%+v\n", requestBody)
@@ -82,13 +80,12 @@ func CreateDevice(c *gin.Context) {
 	if err != nil {
 		fmt.Printf("Error connecting to db, %d", err)
 		common.InternalServerError(c)
-		return
 	}
 
 	var device model.Device
 
 	// Check if serial_no already exists
-	err = db.Model(&model.Device{}).Where("serial_no = ?", requestBody.SerialNo).Select(&device)
+	err = db.Model(&model.Device{}).Where("serial_no = ? AND status != 'DELETED'", requestBody.SerialNo).Select(&device)
 	if err != nil {
 		if err.Error() == "pg: no rows in result set" {
 			// expected

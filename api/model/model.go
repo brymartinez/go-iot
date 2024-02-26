@@ -30,3 +30,8 @@ type CreateDeviceDTO struct {
 	Name     string       `json:"name" validate:"required"`
 	Config   DeviceConfig `json:"config"`
 }
+
+type ConfigureDeviceDTO struct {
+	Name   string       `json:"name"`
+	Config DeviceConfig `json:"config"`
+}

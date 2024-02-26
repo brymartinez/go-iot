@@ -12,7 +12,9 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
-	router := gin.Default()
+	gin.DisableConsoleColor()
+	router := gin.New()
+	router.Use(gin.Recovery())
 	router.GET("/device/:id", handler.GetDevice)
 	router.POST("/device", handler.CreateDevice)
 	router.PUT("/device/:id", handler.ConfigureDevice)
