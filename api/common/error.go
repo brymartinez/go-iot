@@ -26,3 +26,10 @@ func BadRequestError(c *gin.Context, errorField string) {
 		"message": "Error validating " + errorField,
 	})
 }
+
+func DeviceExistsError(c *gin.Context) {
+	c.IndentedJSON(http.StatusBadRequest, gin.H{
+		"error":   1002,
+		"message": "Device already exists.",
+	})
+}

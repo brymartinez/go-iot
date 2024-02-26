@@ -86,22 +86,35 @@ func CreateDevice(c *gin.Context) {
 	}
 
 	var device model.Device
-	publicId := service.IDGenerator(requestBody.Class)
-	fmt.Printf("Public id is %s\n", publicId)
-	device.PublicID = publicId
-	device.Status = "PROVISIONED"
-	device.Config = requestBody.Config
-	device.Class = requestBody.Class
-	device.SerialNo = requestBody.SerialNo
-	device.Name = requestBody.Name
-	device.CreatedAt = time.Now()
-	device.UpdatedAt = time.Now()
-	_, err = db.Model(&device).Insert(&device)
+
+	// Check if serial_no already exists
+	err = db.Model(&model.Device{}).Where("serial_no = ?", requestBody.SerialNo).Select(&device)
 	if err != nil {
-		fmt.Printf("Error saving to db, %d", err)
-		common.InternalServerError(c)
-		return
+		if err.Error() == "pg: no rows in result set" {
+			// expected
+			publicId := service.IDGenerator(requestBody.Class)
+			fmt.Printf("Public id is %s\n", publicId)
+			device.PublicID = publicId
+			device.Status = "PROVISIONED"
+			device.Config = requestBody.Config
+			device.Class = requestBody.Class
+			device.SerialNo = requestBody.SerialNo
+			device.Name = requestBody.Name
+			device.CreatedAt = time.Now()
+			device.UpdatedAt = time.Now()
+			_, err = db.Model(&device).Insert(&device)
+			if err != nil {
+				fmt.Printf("Error saving to db, %d", err)
+				common.InternalServerError(c)
+			}
+
+			c.IndentedJSON(200, device)
+		} else {
+			fmt.Printf("Error getting device, %d", err)
+			common.InternalServerError(c)
+		}
+	} else {
+		common.DeviceExistsError(c)
 	}
 
-	c.IndentedJSON(200, device)
 }
