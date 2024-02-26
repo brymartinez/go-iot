@@ -59,9 +59,9 @@ func CreateDevice(c *gin.Context) {
 	var requestBody model.CreateDeviceDTO
 
 	if err := c.BindJSON(&requestBody); err != nil {
-		// DO SOMETHING WITH THE ERROR
-		fmt.Printf("Error parsing body, %d", err)
-		common.InternalServerError(c)
+		errMsg := "Failed to process request"
+		common.BadRequestError(c, errMsg)
+		return
 	}
 
 	// Set default values for fields if they are not provided
