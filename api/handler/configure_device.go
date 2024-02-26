@@ -17,6 +17,23 @@ func mergeStructs(config1 model.DeviceConfig, config2 model.DeviceConfig) (model
 		return config1, err
 	}
 
+	// Handle pointer fields individually to properly override
+	if config2.IsEnabled != nil {
+		config1.IsEnabled = config2.IsEnabled
+	}
+	if config2.IsInteractive != nil {
+		config1.IsInteractive = config2.IsInteractive
+	}
+	if config2.Connection != nil {
+		config1.Connection = config2.Connection
+	}
+	if config2.SendFrequency != nil {
+		config1.SendFrequency = config2.SendFrequency
+	}
+	if config2.Version != nil {
+		config1.Version = config2.Version
+	}
+
 	return config1, nil
 }
 
