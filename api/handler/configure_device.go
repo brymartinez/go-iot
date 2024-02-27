@@ -9,7 +9,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-func mergeStructs(config1 model.DeviceConfig, config2 model.DeviceConfig) (model.DeviceConfig, error) {
+func mergeStructs(config1 model.DeviceConfig, config2 model.DeviceConfig) model.DeviceConfig {
 	// Handle pointer fields individually to properly override
 	if config2.IsEnabled != nil {
 		config1.IsEnabled = config2.IsEnabled
@@ -27,7 +27,7 @@ func mergeStructs(config1 model.DeviceConfig, config2 model.DeviceConfig) (model
 		config1.Version = config2.Version
 	}
 
-	return config1, nil
+	return config1
 }
 
 func ConfigureDevice(c *gin.Context) {
@@ -49,8 +49,6 @@ func ConfigureDevice(c *gin.Context) {
 		return
 	}
 
-	fmt.Printf("%+v\n", requestBody)
-
 	db, err := common.ConnectToDB()
 	if err != nil {
 		fmt.Printf("Error connecting to db, %d", err)
@@ -71,12 +69,7 @@ func ConfigureDevice(c *gin.Context) {
 		}
 	}
 
-	newConfig, err := mergeStructs(updatedDevice.Config, requestBody.Config)
-	if err != nil {
-		fmt.Printf("Error merging structs, %d", err)
-		common.InternalServerError(c)
-	}
-	updatedDevice.Config = newConfig
+	updatedDevice.Config = mergeStructs(updatedDevice.Config, requestBody.Config)
 
 	_, err = db.Model(&updatedDevice).Where("public_id = ? AND status='PROVISIONED'", id).Update(&updatedDevice)
 	if err != nil {
