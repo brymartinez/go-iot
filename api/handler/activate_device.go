@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
 	"go-iot/api/common"
 	"go-iot/api/model"
+	"go-iot/api/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,6 +33,14 @@ func ActivateDevice(c *gin.Context) {
 
 	device.Status = "PENDING"
 	// TODO - send to SNS
+	jsonMessage, err := json.Marshal(device)
+	if err != nil {
+		common.InternalServerError(c)
+		return
+	}
+
+	service.Publish(device.Class, string(jsonMessage))
+
 	_, err = db.Model(&device).Where("public_id = ? AND status='PROVISIONED'", id).Update(&device)
 	if err != nil {
 		fmt.Printf("Error saving to db, %d", err)
