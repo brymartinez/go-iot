@@ -24,8 +24,10 @@ func GetDevice(c *gin.Context) {
 		fmt.Printf("Error getting device, %d", err)
 		if err.Error() == "pg: no rows in result set" {
 			common.NotFoundError(c)
+			return
 		} else {
 			common.InternalServerError(c)
+			return
 		}
 	}
 
