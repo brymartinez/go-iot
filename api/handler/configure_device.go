@@ -5,18 +5,11 @@ import (
 	"go-iot/api/common"
 	"go-iot/api/model"
 
-	"dario.cat/mergo"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 )
 
 func mergeStructs(config1 model.DeviceConfig, config2 model.DeviceConfig) (model.DeviceConfig, error) {
-	// Merge config2 into config1, overriding fields from config1
-	if err := mergo.Merge(&config1, config2, mergo.WithOverride); err != nil {
-		fmt.Println("Error merging configs:", err)
-		return config1, err
-	}
-
 	// Handle pointer fields individually to properly override
 	if config2.IsEnabled != nil {
 		config1.IsEnabled = config2.IsEnabled
