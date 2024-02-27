@@ -29,7 +29,8 @@ func ActivateDevice(c *gin.Context) {
 		}
 	}
 
-	device.Status = "ACTIVE"
+	device.Status = "PENDING"
+	// TODO - send to SNS
 	_, err = db.Model(&device).Where("public_id = ? AND status='PROVISIONED'", id).Update(&device)
 	if err != nil {
 		fmt.Printf("Error saving to db, %d", err)
