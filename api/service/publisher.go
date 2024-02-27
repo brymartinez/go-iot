@@ -31,7 +31,7 @@ func Publish(clss string, message string) {
 
 	client := sns.NewFromConfig(cfg)
 
-	topicArn := "GO_IOT"
+	topicArn := "arn:aws:sns:ap-southeast-1:000000000000:GO_IOT"
 
 	attributes := map[string]types.MessageAttributeValue{
 		"IOT_ACTIVATION": {
