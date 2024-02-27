@@ -74,8 +74,6 @@ func CreateDevice(c *gin.Context) {
 		common.BadRequestError(c, errMsg)
 	}
 
-	fmt.Printf("%+v\n", requestBody)
-
 	db, err := common.ConnectToDB()
 	if err != nil {
 		fmt.Printf("Error connecting to db, %d", err)
