@@ -29,5 +29,5 @@ func GetDevice(c *gin.Context) {
 		}
 	}
 
-	c.IndentedJSON(200, device)
+	c.JSON(200, device)
 }

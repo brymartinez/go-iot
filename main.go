@@ -18,7 +18,7 @@ func main() {
 	router.GET("/device/:id", handler.GetDevice)
 	router.POST("/device", handler.CreateDevice)
 	router.PUT("/device/:id", handler.ConfigureDevice)
-	// router.PUT("/device/:id/activate", handler.ActivateDevice)
+	router.PUT("/device/:id/activate", handler.ActivateDevice)
 	// router.PUT("/device/:id/deactivate", handler.DeactivateDevice)
 	// router.DELETE("/device/:id", handler.DeleteDevice)
 	router.Run("localhost:3000")

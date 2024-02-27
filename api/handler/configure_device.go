@@ -77,6 +77,6 @@ func ConfigureDevice(c *gin.Context) {
 		common.InternalServerError(c)
 	}
 
-	c.IndentedJSON(200, updatedDevice)
+	c.JSON(200, updatedDevice)
 
 }

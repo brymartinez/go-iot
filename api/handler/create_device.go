@@ -103,7 +103,7 @@ func CreateDevice(c *gin.Context) {
 				common.InternalServerError(c)
 			}
 
-			c.IndentedJSON(200, device)
+			c.JSON(200, device)
 		} else {
 			fmt.Printf("Error getting device, %d", err)
 			common.InternalServerError(c)
