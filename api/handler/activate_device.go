@@ -26,8 +26,10 @@ func ActivateDevice(c *gin.Context) {
 		fmt.Printf("Error getting device, %d", err)
 		if err.Error() == "pg: no rows in result set" {
 			common.NotFoundError(c)
+			return
 		} else {
 			common.InternalServerError(c)
+			return
 		}
 	}
 
@@ -39,12 +41,17 @@ func ActivateDevice(c *gin.Context) {
 		return
 	}
 
-	service.Publish(device.Class, string(jsonMessage))
+	err = service.Publish(device.Class, string(jsonMessage))
+	if err != nil {
+		common.InternalServerError(c)
+		return
+	}
 
 	_, err = db.Model(&device).Where("public_id = ? AND status='PROVISIONED'", id).Update(&device)
 	if err != nil {
 		fmt.Printf("Error saving to db, %d", err)
 		common.InternalServerError(c)
+		return
 	}
 
 	c.JSON(200, device)

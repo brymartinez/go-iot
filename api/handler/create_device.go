@@ -72,12 +72,14 @@ func CreateDevice(c *gin.Context) {
 		// Construct error message
 		errMsg := constructErrorMessage(err)
 		common.BadRequestError(c, errMsg)
+		return
 	}
 
 	db, err := common.ConnectToDB()
 	if err != nil {
 		fmt.Printf("Error connecting to db, %d", err)
 		common.InternalServerError(c)
+		return
 	}
 
 	var device model.Device
@@ -101,15 +103,18 @@ func CreateDevice(c *gin.Context) {
 			if err != nil {
 				fmt.Printf("Error saving to db, %d", err)
 				common.InternalServerError(c)
+				return
 			}
 
 			c.JSON(200, device)
 		} else {
 			fmt.Printf("Error getting device, %d", err)
 			common.InternalServerError(c)
+			return
 		}
 	} else {
 		common.DeviceExistsError(c)
+		return
 	}
 
 }

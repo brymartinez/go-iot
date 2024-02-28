@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -14,7 +16,7 @@ func init() {
 
 }
 
-func Publish(clss string, message string) {
+func Publish(clss string, message string) error {
 	cfg, err := config.LoadDefaultConfig(
 		context.Background(),
 		config.WithRegion("ap-southeast-1"),
@@ -26,12 +28,12 @@ func Publish(clss string, message string) {
 	)
 
 	if err != nil {
-		panic("Cannot instantiate AWS connection.")
+		return errors.New("cannot instantiate AWS connection")
 	}
 
 	client := sns.NewFromConfig(cfg)
 
-	topicArn := "GO_IOT"
+	topicArn := os.Getenv("TOPIC_ARN")
 
 	attributes := map[string]types.MessageAttributeValue{
 		"IOT_ACTIVATION": {
@@ -48,8 +50,9 @@ func Publish(clss string, message string) {
 
 	if err != nil {
 		fmt.Println("Error publishing message:", err)
-		return
+		return err
 	}
 
 	fmt.Println("Message published to topic:", *result.MessageId)
+	return nil
 }

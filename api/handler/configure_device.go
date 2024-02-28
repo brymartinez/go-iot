@@ -75,6 +75,7 @@ func ConfigureDevice(c *gin.Context) {
 	if err != nil {
 		fmt.Printf("Error saving to db, %d", err)
 		common.InternalServerError(c)
+		return
 	}
 
 	c.JSON(200, updatedDevice)
