@@ -26,10 +26,8 @@ func ActivateDevice(c *gin.Context) {
 		fmt.Printf("Error getting device, %d", err)
 		if err.Error() == "pg: no rows in result set" {
 			common.NotFoundError(c)
-			return
 		} else {
 			common.InternalServerError(c)
-			return
 		}
 	}
 
@@ -47,7 +45,6 @@ func ActivateDevice(c *gin.Context) {
 	if err != nil {
 		fmt.Printf("Error saving to db, %d", err)
 		common.InternalServerError(c)
-		return
 	}
 
 	c.JSON(200, device)
