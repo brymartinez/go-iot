@@ -14,6 +14,7 @@ require (
 )
 
 require (
+	github.com/aws/aws-sdk-go v1.50.26
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.4 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.15.2 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.3.2 // indirect

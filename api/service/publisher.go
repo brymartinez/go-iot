@@ -12,10 +12,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sns/types"
 )
 
-func init() {
-
-}
-
 func Publish(clss string, message string) error {
 	cfg, err := config.LoadDefaultConfig(
 		context.Background(),
