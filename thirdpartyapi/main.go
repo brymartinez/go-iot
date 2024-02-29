@@ -72,7 +72,8 @@ func handler() http.HandlerFunc {
 			log.Println(err)
 		}
 
-		log.Println(string(body))
+		fmt.Println("Received body", string(body))
+
 		req := SNSEvent{}
 
 		if err := json.Unmarshal(body, &req); err != nil {

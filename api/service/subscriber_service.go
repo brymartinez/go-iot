@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"sync"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -25,7 +24,7 @@ type SNSEvent struct {
 
 var snsClient *sns.Client
 
-func Subscribe(endpoint string) {
+func Subscribe() error {
 	cfg, err := config.LoadDefaultConfig(
 		context.Background(),
 		config.WithRegion("ap-southeast-1"),
@@ -38,18 +37,16 @@ func Subscribe(endpoint string) {
 
 	if err != nil {
 		log.Fatal("Error loading AWS config:", err)
+		return err
 	}
 
 	snsClient = sns.NewFromConfig(cfg)
-
-	wg := &sync.WaitGroup{}
-	wg.Add(1)
-	go startHttpServer(wg, ":8083")
+	go startHttpServer(":8083")
 	subscribeToSNS("http://host.docker.internal:8083")
+	return nil
 }
 
-func startHttpServer(wg *sync.WaitGroup, port string) {
-	defer wg.Done()
+func startHttpServer(port string) {
 	server := http.Server{
 		Addr:    port,
 		Handler: handler(),
@@ -66,6 +63,7 @@ func handler() http.HandlerFunc {
 			log.Println(err)
 		}
 
+		fmt.Println("Received body", string(body))
 		req := SNSEvent{}
 
 		if err := json.Unmarshal(body, &req); err != nil {
@@ -104,35 +102,34 @@ func publish(message string) {
 func subscribeToSNS(endpoint string) error {
 	topicArn := os.Getenv("TOPIC_ARN")
 
-	filterMap := map[string][]string{
-		"IOT_ACTIVATION_RESPONSE":   {"Living Room", "Bedroom", "Dining Room", "Kitchen", "Other"},
-		"IOT_DEACTIVATION_RESPONSE": {"Living Room", "Bedroom", "Dining Room", "Kitchen", "Other"},
-	}
+	// filterMap := map[string][]string{
+	// 	"IOT_ACTIVATION_RESPONSE":   {"Living Room", "Bedroom", "Dining Room", "Kitchen", "Other"},
+	// 	"IOT_DEACTIVATION_RESPONSE": {"Living Room", "Bedroom", "Dining Room", "Kitchen", "Other"},
+	// }
 
-	var attributes map[string]string
-	filterBytes, err := json.Marshal(filterMap)
-	if err != nil {
-		log.Printf("Couldn't create filter policy, here's why: %v\n", err)
-		return err
-	}
-	attributes = map[string]string{"FilterPolicy": string(filterBytes)}
+	// var attributes map[string]string
+	// filterBytes, err := json.Marshal(filterMap)
+	// if err != nil {
+	// 	log.Printf("Couldn't create filter policy, here's why: %v\n", err)
+	// 	return err
+	// }
+	// attributes = map[string]string{"FilterPolicy": string(filterBytes)}
 
 	protocol := "http"
 	// Subscribe to the SNS topic
 	output, err := snsClient.Subscribe(context.Background(), &sns.SubscribeInput{
-		TopicArn:   &topicArn,
-		Protocol:   &protocol,
-		Endpoint:   &endpoint,
-		Attributes: attributes,
+		TopicArn: &topicArn,
+		Protocol: &protocol,
+		Endpoint: &endpoint,
+		// Attributes: attributes,
 	})
 
-	fmt.Printf("Successful subscription\n%d\n", output)
+	fmt.Printf("Successful subscription\n%d\n", output.SubscriptionArn)
 	if err != nil {
 		return err
 	}
 
 	return nil
-
 }
 
 func confirm(request SNSEvent) {
