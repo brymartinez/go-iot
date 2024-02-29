@@ -26,7 +26,7 @@ func ActivateDevice(c *gin.Context) {
 	if err != nil {
 		fmt.Printf("Error getting device, %d", err)
 		if err.Error() == "pg: no rows in result set" {
-			common.NotFoundError(c)
+			common.NotFoundError(c) // TODO - throw invalid state instead
 			return
 		} else {
 			common.InternalServerError(c)

@@ -86,7 +86,7 @@ func handler() http.HandlerFunc {
 			log.Println("Got string message", *req.Message)
 		}
 
-		if message.Class == "Living Room" {
+		if message.Class == "Other" { // Condition to disapprove "Other" devices
 			publish("PENDING")
 		} else {
 			publish("ACTIVE")
@@ -99,7 +99,8 @@ func subscribeToSNS(endpoint string) error {
 	topicArn := "arn:aws:sns:ap-southeast-1:000000000000:GO_IOT"
 
 	filterMap := map[string][]string{
-		"IOT_ACTIVATION": {"Living Room"},
+		"IOT_ACTIVATION":   {"Living Room", "Bedroom", "Dining Room", "Kitchen", "Other"},
+		"IOT_DEACTIVATION": {"Living Room", "Bedroom", "Dining Room", "Kitchen", "Other"},
 	}
 
 	var attributes map[string]string
