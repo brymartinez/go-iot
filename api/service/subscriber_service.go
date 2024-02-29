@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"sync"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -53,7 +54,7 @@ func startHttpServer(wg *sync.WaitGroup, port string) {
 		Addr:    port,
 		Handler: handler(),
 	}
-	log.Println("starting server on port 8080")
+	log.Println("starting server on port 8083")
 	err := server.ListenAndServe()
 	log.Fatal(err)
 }
@@ -86,6 +87,7 @@ func handler() http.HandlerFunc {
 			log.Println("Got string message", *req.Message)
 		}
 
+		log.Println("Got object message", message)
 		if message.Class == "Other" { // Condition to disapprove "Other" devices
 			publish("PENDING")
 		} else {
@@ -100,7 +102,7 @@ func publish(message string) {
 }
 
 func subscribeToSNS(endpoint string) error {
-	topicArn := "arn:aws:sns:ap-southeast-1:000000000000:GO_IOT"
+	topicArn := os.Getenv("TOPIC_ARN")
 
 	filterMap := map[string][]string{
 		"IOT_ACTIVATION_RESPONSE":   {"Living Room", "Bedroom", "Dining Room", "Kitchen", "Other"},

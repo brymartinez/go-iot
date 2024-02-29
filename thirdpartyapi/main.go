@@ -17,12 +17,19 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
+	"github.com/aws/aws-sdk-go-v2/service/sns/types"
 )
 
 type SNSEvent struct {
-	RequestType  *string `json:"Type"`
-	SubscribeURL *string `json:"SubscribeURL"`
-	Message      *string `json:"Message"`
+	RequestType       *string                 `json:"Type"`
+	SubscribeURL      *string                 `json:"SubscribeURL"`
+	Message           *string                 `json:"Message"`
+	MessageAttributes *map[string]interface{} `json:"MessageAttributes"`
+}
+
+type IOTResponse struct {
+	PublicID string `json:"id"`
+	Status   string `json:"status"`
 }
 
 type DeviceConfig struct {
@@ -53,7 +60,7 @@ func startHttpServer(wg *sync.WaitGroup, port string) {
 		Addr:    port,
 		Handler: handler(),
 	}
-	log.Println("starting server on port 8080")
+	log.Println("starting server on port 8082")
 	err := server.ListenAndServe()
 	log.Fatal(err)
 }
@@ -65,6 +72,7 @@ func handler() http.HandlerFunc {
 			log.Println(err)
 		}
 
+		log.Println(string(body))
 		req := SNSEvent{}
 
 		if err := json.Unmarshal(body, &req); err != nil {
@@ -85,11 +93,30 @@ func handler() http.HandlerFunc {
 		if err != nil {
 			log.Println("Got string message", *req.Message)
 		}
+		log.Println(*req.Message)
+		log.Println(*req.RequestType)
+		log.Println(*req.MessageAttributes)
+
+		var responseMessage IOTResponse = IOTResponse{
+			PublicID: "1",
+			Status:   "ACTIVE",
+		}
+
+		responseText := ""
+
+		for key := range *req.MessageAttributes {
+			if key == "IOT_ACTIVATION" || key == "IOT_DEACTIVATION" {
+				responseText = key
+			}
+		}
+
+		fmt.Println(responseText)
 
 		if message.Class == "Other" { // Condition to disapprove "Other" devices
-			publish("PENDING")
+			responseMessage.Status = "PROVISIONED"
+			publish(responseText+"_RESPONSE", message.Class, responseMessage)
 		} else {
-			publish("ACTIVE")
+			publish(responseText+"_RESPONSE", message.Class, responseMessage)
 		}
 		w.WriteHeader(200)
 	}
@@ -151,8 +178,35 @@ func confirm(request SNSEvent) {
 	log.Println("confirm output", output)
 }
 
-func publish(message string) {
-	log.Println(message)
+func publish(step string, clss string, message IOTResponse) error {
+	topicArn := "arn:aws:sns:ap-southeast-1:000000000000:GO_IOT"
+
+	responseMessageString, err := json.Marshal(message)
+	if err != nil {
+		log.Println("Unable to convert to string", err)
+		return err
+	}
+
+	attributes := map[string]types.MessageAttributeValue{
+		step: {
+			DataType:    aws.String("String"),
+			StringValue: aws.String(clss),
+		},
+	}
+
+	result, err := snsClient.Publish(context.Background(), &sns.PublishInput{
+		Message:           aws.String(string(responseMessageString)),
+		TopicArn:          &topicArn,
+		MessageAttributes: attributes,
+	})
+
+	if err != nil {
+		fmt.Println("Error publishing message:", err)
+		return err
+	}
+
+	fmt.Println("Message published to topic:", *result.MessageId)
+	return nil
 }
 
 func main() {
