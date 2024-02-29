@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go-iot/api/common"
 	"go-iot/api/model"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -70,6 +71,7 @@ func ConfigureDevice(c *gin.Context) {
 	}
 
 	updatedDevice.Config = mergeStructs(updatedDevice.Config, requestBody.Config)
+	updatedDevice.UpdatedAt = time.Now()
 
 	_, err = db.Model(&updatedDevice).Where("public_id = ? AND status='PROVISIONED'", id).Update(&updatedDevice)
 	if err != nil {

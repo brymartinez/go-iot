@@ -6,6 +6,7 @@ import (
 	"go-iot/api/common"
 	"go-iot/api/model"
 	"go-iot/api/service"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -34,7 +35,8 @@ func ActivateDevice(c *gin.Context) {
 	}
 
 	device.Status = "PENDING"
-	// TODO - send to SNS
+	device.UpdatedAt = time.Now()
+
 	jsonMessage, err := json.Marshal(device)
 	if err != nil {
 		common.InternalServerError(c)
