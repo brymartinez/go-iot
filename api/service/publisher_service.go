@@ -12,7 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sns/types"
 )
 
-func Publish(clss string, message string) error {
+func Publish(step string, clss string, message string) error {
 	cfg, err := config.LoadDefaultConfig(
 		context.Background(),
 		config.WithRegion("ap-southeast-1"),
@@ -32,7 +32,7 @@ func Publish(clss string, message string) error {
 	topicArn := os.Getenv("TOPIC_ARN")
 
 	attributes := map[string]types.MessageAttributeValue{
-		"IOT_ACTIVATION": {
+		step: {
 			DataType:    aws.String("String"),
 			StringValue: aws.String(clss),
 		},

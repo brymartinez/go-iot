@@ -89,7 +89,7 @@ func CreateDevice(c *gin.Context) {
 	if err != nil {
 		if err.Error() == "pg: no rows in result set" {
 			// expected
-			publicId := service.IDGenerator(requestBody.Class)
+			publicId := service.GenerateID(requestBody.Class)
 			fmt.Printf("Public id is %s\n", publicId)
 			device.PublicID = publicId
 			device.Status = "PROVISIONED"

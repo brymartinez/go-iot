@@ -17,7 +17,7 @@ func printMap(m map[string]types.AttributeValue) {
 	}
 }
 
-func IDGenerator(clss string) string {
+func GenerateID(clss string) string {
 
 	cfg, err := config.LoadDefaultConfig(
 		context.Background(),

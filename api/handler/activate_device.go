@@ -43,7 +43,7 @@ func ActivateDevice(c *gin.Context) {
 		return
 	}
 
-	err = service.Publish(device.Class, string(jsonMessage))
+	err = service.Publish("IOT_ACTIVATION", device.Class, string(jsonMessage))
 	if err != nil {
 		common.InternalServerError(c)
 		return
