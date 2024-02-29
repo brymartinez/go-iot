@@ -98,12 +98,25 @@ func handler() http.HandlerFunc {
 func subscribeToSNS(endpoint string) error {
 	topicArn := "arn:aws:sns:ap-southeast-1:000000000000:GO_IOT"
 
+	filterMap := map[string][]string{
+		"IOT_ACTIVATION": {"Living Room"},
+	}
+
+	var attributes map[string]string
+	filterBytes, err := json.Marshal(filterMap)
+	if err != nil {
+		log.Printf("Couldn't create filter policy, here's why: %v\n", err)
+		return err
+	}
+	attributes = map[string]string{"FilterPolicy": string(filterBytes)}
+
 	protocol := "http"
 	// Subscribe to the SNS topic
 	output, err := snsClient.Subscribe(context.Background(), &sns.SubscribeInput{
-		TopicArn: &topicArn,
-		Protocol: &protocol,
-		Endpoint: &endpoint,
+		TopicArn:   &topicArn,
+		Protocol:   &protocol,
+		Endpoint:   &endpoint,
+		Attributes: attributes,
 	})
 
 	fmt.Printf("Successful subscription\n%d\n", output)
