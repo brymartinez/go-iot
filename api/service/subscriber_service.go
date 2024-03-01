@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"go-iot/api/common"
 	"go-iot/api/model"
 	"io"
 	"log"
@@ -78,6 +79,13 @@ func handler() http.HandlerFunc {
 			return
 		}
 
+		db, err := common.ConnectToDB()
+		if err != nil {
+			fmt.Printf("Error connecting to db, %d\n", err)
+			common.InternalServerError(c)
+			return
+		}
+
 		//messages
 		var message model.Device
 		err = json.Unmarshal([]byte(*req.Message), &message)
@@ -85,11 +93,18 @@ func handler() http.HandlerFunc {
 			log.Println("Got string message", *req.Message)
 		}
 
+		var device model.Device
 		log.Println("Got object message", message)
 		if message.Class == "Other" { // Condition to disapprove "Other" devices
-			publish("PENDING")
+			device.Status = "ACTIVE"
+			_, err = db.Model(&device).Where("public_id = ? AND status='PENDING'", id).Update(&device)
+			if err != nil {
+				fmt.Printf("Error saving to db, %d\n", err)
+				rollback()
+				return
+			}
 		} else {
-			publish("ACTIVE")
+
 		}
 		w.WriteHeader(200)
 	}
@@ -97,6 +112,10 @@ func handler() http.HandlerFunc {
 
 func publish(message string) {
 	log.Println(message)
+}
+
+func rollback() {
+
 }
 
 func subscribeToSNS(endpoint string) error {
