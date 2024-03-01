@@ -13,7 +13,7 @@ func GetDevice(c *gin.Context) {
 
 	db, err := common.ConnectToDB()
 	if err != nil {
-		fmt.Printf("Error connecting to db, %d", err)
+		fmt.Printf("Error connecting to db, %d\n", err)
 		common.InternalServerError(c)
 		return
 	}
@@ -21,7 +21,7 @@ func GetDevice(c *gin.Context) {
 	var device model.Device
 	err = db.Model(&model.Device{}).Where("public_id = ?", id).Select(&device)
 	if err != nil {
-		fmt.Printf("Error getting device, %d", err)
+		fmt.Printf("Error getting device, %d\n", err)
 		if err.Error() == "pg: no rows in result set" {
 			common.NotFoundError(c)
 			return

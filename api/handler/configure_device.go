@@ -52,7 +52,7 @@ func ConfigureDevice(c *gin.Context) {
 
 	db, err := common.ConnectToDB()
 	if err != nil {
-		fmt.Printf("Error connecting to db, %d", err)
+		fmt.Printf("Error connecting to db, %d\n", err)
 		common.InternalServerError(c)
 		return
 	}
@@ -60,7 +60,7 @@ func ConfigureDevice(c *gin.Context) {
 	var updatedDevice model.Device
 	err = db.Model(&model.Device{}).Where("public_id = ? AND status='PROVISIONED'", id).Select(&updatedDevice)
 	if err != nil {
-		fmt.Printf("Error getting device, %d", err)
+		fmt.Printf("Error getting device, %d\n", err)
 		if err.Error() == "pg: no rows in result set" {
 			common.NotFoundError(c)
 			return
@@ -75,7 +75,7 @@ func ConfigureDevice(c *gin.Context) {
 
 	_, err = db.Model(&updatedDevice).Where("public_id = ? AND status='PROVISIONED'", id).Update(&updatedDevice)
 	if err != nil {
-		fmt.Printf("Error saving to db, %d", err)
+		fmt.Printf("Error saving to db, %d\n", err)
 		common.InternalServerError(c)
 		return
 	}

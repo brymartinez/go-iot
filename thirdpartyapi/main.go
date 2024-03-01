@@ -176,7 +176,7 @@ func confirm(request SNSEvent) {
 		log.Println(err)
 	}
 
-	log.Println("confirm output", output)
+	log.Println("confirm output", *output)
 }
 
 func publish(step string, clss string, message IOTResponse) error {

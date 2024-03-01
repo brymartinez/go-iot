@@ -16,7 +16,7 @@ func ActivateDevice(c *gin.Context) {
 
 	db, err := common.ConnectToDB()
 	if err != nil {
-		fmt.Printf("Error connecting to db, %d", err)
+		fmt.Printf("Error connecting to db, %d\n", err)
 		common.InternalServerError(c)
 		return
 	}
@@ -24,7 +24,7 @@ func ActivateDevice(c *gin.Context) {
 	var device model.Device
 	err = db.Model(&model.Device{}).Where("public_id = ? AND status='PROVISIONED'", id).Select(&device)
 	if err != nil {
-		fmt.Printf("Error getting device, %d", err)
+		fmt.Printf("Error getting device, %d\n", err)
 		if err.Error() == "pg: no rows in result set" {
 			common.NotFoundError(c) // TODO - throw invalid state instead
 			return
@@ -51,7 +51,7 @@ func ActivateDevice(c *gin.Context) {
 
 	_, err = db.Model(&device).Where("public_id = ? AND status='PROVISIONED'", id).Update(&device)
 	if err != nil {
-		fmt.Printf("Error saving to db, %d", err)
+		fmt.Printf("Error saving to db, %d\n", err)
 		common.InternalServerError(c)
 		return
 	}

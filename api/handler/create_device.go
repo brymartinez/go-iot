@@ -77,7 +77,7 @@ func CreateDevice(c *gin.Context) {
 
 	db, err := common.ConnectToDB()
 	if err != nil {
-		fmt.Printf("Error connecting to db, %d", err)
+		fmt.Printf("Error connecting to db, %d\n", err)
 		common.InternalServerError(c)
 		return
 	}
@@ -101,14 +101,14 @@ func CreateDevice(c *gin.Context) {
 			device.UpdatedAt = time.Now()
 			_, err = db.Model(&device).Insert(&device)
 			if err != nil {
-				fmt.Printf("Error saving to db, %d", err)
+				fmt.Printf("Error saving to db, %d\n", err)
 				common.InternalServerError(c)
 				return
 			}
 
 			c.JSON(200, device)
 		} else {
-			fmt.Printf("Error getting device, %d", err)
+			fmt.Printf("Error getting device, %d\n", err)
 			common.InternalServerError(c)
 			return
 		}

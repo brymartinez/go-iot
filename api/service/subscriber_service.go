@@ -151,5 +151,5 @@ func confirm(request SNSEvent) {
 		log.Println(err)
 	}
 
-	log.Println("confirm output", output)
+	log.Println("confirm output", *output)
 }
