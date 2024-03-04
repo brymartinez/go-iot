@@ -47,7 +47,12 @@ func Subscribe() error {
 
 	snsClient = sns.NewFromConfig(cfg)
 	go startHttpServer(":8083")
-	subscribeToSNS("http://host.docker.internal:8083")
+	err = subscribeToSNS("http://host.docker.internal:8083")
+	if err != nil {
+		log.Fatal("Error subscribing:", err)
+		return err
+	}
+
 	return nil
 }
 
@@ -79,19 +84,21 @@ func handler() http.HandlerFunc {
 
 		log.Println(*req.Message)
 		log.Println(*req.RequestType)
-		log.Println(*req.MessageAttributes)
-
-		topic := ""
-		for key := range *req.MessageAttributes {
-			if key == "IOT_ACTIVATION_RESPONSE" || key == "IOT_DEACTIVATION_RESPONSE" {
-				topic = key
-			}
-		}
 
 		//confirmation request
 		if *req.RequestType == "SubscriptionConfirmation" {
 			confirm(req)
 			return
+		}
+
+		topic := ""
+		if *req.MessageAttributes != nil {
+			log.Println(*req.MessageAttributes)
+			for key := range *req.MessageAttributes {
+				if key == "IOT_ACTIVATION_RESPONSE" || key == "IOT_DEACTIVATION_RESPONSE" {
+					topic = key
+				}
+			}
 		}
 
 		var message model.Device

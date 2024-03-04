@@ -97,13 +97,16 @@ func handler() http.HandlerFunc {
 		}
 		log.Println(*req.Message)
 		log.Println(*req.RequestType)
-		log.Println(*req.MessageAttributes)
 
 		topic := ""
 
-		for key := range *req.MessageAttributes {
-			if key == "IOT_ACTIVATION" || key == "IOT_DEACTIVATION" {
-				topic = key
+		if *req.MessageAttributes != nil {
+			log.Println(*req.MessageAttributes)
+
+			for key := range *req.MessageAttributes {
+				if key == "IOT_ACTIVATION" || key == "IOT_DEACTIVATION" {
+					topic = key
+				}
 			}
 		}
 
