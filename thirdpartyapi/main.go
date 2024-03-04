@@ -93,31 +93,27 @@ func handler() http.HandlerFunc {
 		err = json.Unmarshal([]byte(*req.Message), &message)
 		if err != nil {
 			log.Println("Got string message", *req.Message)
+			return
 		}
 		log.Println(*req.Message)
 		log.Println(*req.RequestType)
 		log.Println(*req.MessageAttributes)
 
-		var responseMessage IOTResponse = IOTResponse{
-			PublicID: "1",
-			Status:   "ACTIVE",
-		}
-
-		responseText := ""
+		topic := ""
 
 		for key := range *req.MessageAttributes {
 			if key == "IOT_ACTIVATION" || key == "IOT_DEACTIVATION" {
-				responseText = key
+				topic = key
 			}
 		}
 
-		fmt.Println(responseText)
+		fmt.Println(topic)
 
 		if message.Class == "Other" { // Condition to disapprove "Other" devices
-			responseMessage.Status = "PROVISIONED"
-			publish(responseText+"_RESPONSE", message.Class, responseMessage)
+			message.Status = "PROVISIONED"
+			publish(topic+"_RESPONSE", message.Class, message)
 		} else {
-			publish(responseText+"_RESPONSE", message.Class, responseMessage)
+			publish(topic+"_RESPONSE", message.Class, message)
 		}
 		w.WriteHeader(200)
 	}
@@ -179,7 +175,7 @@ func confirm(request SNSEvent) {
 	log.Println("confirm output", *output)
 }
 
-func publish(step string, clss string, message IOTResponse) error {
+func publish(step string, clss string, message Device) error {
 	topicArn := "arn:aws:sns:ap-southeast-1:000000000000:GO_IOT"
 
 	responseMessageString, err := json.Marshal(message)

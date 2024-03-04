@@ -82,7 +82,7 @@ func handler() http.HandlerFunc {
 		db, err := common.ConnectToDB()
 		if err != nil {
 			fmt.Printf("Error connecting to db, %d\n", err)
-			common.InternalServerError(c)
+			w.WriteHeader(500)
 			return
 		}
 
@@ -97,7 +97,7 @@ func handler() http.HandlerFunc {
 		log.Println("Got object message", message)
 		if message.Class == "Other" { // Condition to disapprove "Other" devices
 			device.Status = "ACTIVE"
-			_, err = db.Model(&device).Where("public_id = ? AND status='PENDING'", id).Update(&device)
+			_, err = db.Model(&device).Where("id = ? AND status='PENDING'", message.ID).Update(&device)
 			if err != nil {
 				fmt.Printf("Error saving to db, %d\n", err)
 				rollback()
