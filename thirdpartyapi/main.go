@@ -93,30 +93,39 @@ func handler() http.HandlerFunc {
 		err = json.Unmarshal([]byte(*req.Message), &message)
 		if err != nil {
 			log.Println("Got string message", *req.Message)
+			w.WriteHeader(200)
 			return
 		}
 		log.Println(*req.Message)
 		log.Println(*req.RequestType)
 
-		topic := ""
+		var topic *string
 
 		if *req.MessageAttributes != nil {
 			log.Println(*req.MessageAttributes)
 
 			for key := range *req.MessageAttributes {
 				if key == "IOT_ACTIVATION" || key == "IOT_DEACTIVATION" {
-					topic = key
+					topic = &key
 				}
 			}
+		} else {
+			w.WriteHeader(500)
+			return
 		}
 
-		fmt.Println(topic)
+		if topic == nil {
+			w.WriteHeader(500)
+			return
+		}
+
+		fmt.Println("Topic", *topic)
 
 		if message.Class == "Other" { // Condition to disapprove "Other" devices
 			message.Status = "PROVISIONED"
-			publish(topic+"_RESPONSE", message.Class, message)
+			publish(*topic+"_RESPONSE", message.Class, message)
 		} else {
-			publish(topic+"_RESPONSE", message.Class, message)
+			publish(*topic+"_RESPONSE", message.Class, message)
 		}
 		w.WriteHeader(200)
 	}
@@ -170,17 +179,18 @@ func confirm(request SNSEvent) {
 		Token:    aws.String(token),
 		TopicArn: aws.String(topicARN),
 	}
-	output, err := snsClient.ConfirmSubscription(context.Background(), confirm)
+	_, err = snsClient.ConfirmSubscription(context.Background(), confirm)
 	if err != nil {
 		log.Println(err)
 	}
 
-	log.Println("confirm output", *output)
+	log.Println("Subscription Confirmed!!!")
 }
 
 func publish(step string, clss string, message Device) error {
 	topicArn := "arn:aws:sns:ap-southeast-1:000000000000:GO_IOT"
 
+	log.Println("Topic is", step)
 	responseMessageString, err := json.Marshal(message)
 	if err != nil {
 		log.Println("Unable to convert to string", err)

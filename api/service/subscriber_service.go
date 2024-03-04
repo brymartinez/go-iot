@@ -205,10 +205,10 @@ func confirm(request SNSEvent) {
 		Token:    aws.String(token),
 		TopicArn: aws.String(topicARN),
 	}
-	output, err := snsClient.ConfirmSubscription(context.Background(), confirm)
+	_, err = snsClient.ConfirmSubscription(context.Background(), confirm)
 	if err != nil {
 		log.Println(err)
 	}
 
-	log.Println("confirm output", *output)
+	log.Println("Subscription Confirmed!!!")
 }

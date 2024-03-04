@@ -31,11 +31,12 @@ func Publish(step string, clss string, message string) error {
 
 	topicArn := os.Getenv("TOPIC_ARN")
 
+	messageAttributes := types.MessageAttributeValue{
+		DataType:    aws.String("String"),
+		StringValue: aws.String(clss),
+	}
 	attributes := map[string]types.MessageAttributeValue{
-		step: {
-			DataType:    aws.String("String"),
-			StringValue: aws.String(clss),
-		},
+		step: messageAttributes,
 	}
 
 	result, err := client.Publish(context.Background(), &sns.PublishInput{
@@ -50,5 +51,7 @@ func Publish(step string, clss string, message string) error {
 	}
 
 	fmt.Println("Message published to topic:", *result.MessageId)
+	fmt.Println("Message:", message)
+	fmt.Println("Attributes:", step, messageAttributes)
 	return nil
 }
