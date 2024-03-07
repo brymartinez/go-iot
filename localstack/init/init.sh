@@ -8,3 +8,5 @@ awslocal dynamodb create-table \
 
 awslocal dynamodb put-item --table-name IDGenerator-local --item '{"IDSequence": { "S": "IDSequence" },"Living Room": { "N": "10000000" },"Bedroom": { "N": "20000000" },"Dining Room": { "N": "30000000" },"Kitchen": { "N": "40000000" },"Other": { "N": "50000000" }}' --region ap-southeast-1
 awslocal sns create-topic --name GO_IOT --region ap-southeast-1
+awslocal ssm put-parameter --name /go-iot/local/dbconnstring --value postgres://postgres:example@localhost:5432/postgres --type String --region ap-southeast-1
+awslocal s3 mb s3://localstack-packages --region ap-southeast-1

@@ -1,0 +1,84 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: go-iot-service
+# app and org for use with dashboard.serverless.com
+#app: your-app-name
+#org: your-org-name
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+frameworkVersion: '3'
+
+plugins:
+ - serverless-localstack
+
+provider:
+  name: aws
+  runtime: go1.x
+  region: ${opt:region, 'ap-southeast-1'}
+  deploymentBucket: localstack-packages
+  environment:
+    DB_CONNSTRING: ${ssm:/go-iot/local/dbconnstring}
+# you can overwrite defaults here
+  stage: ${opt:stage, 'local'}
+  iam:
+   role:
+     statements:
+      - Effect: Allow
+        Action:
+        - dynamodb:UpdateItem
+        Resource:
+          - 'Fn::Join':
+              - ':'
+              - - 'arn'
+                - Ref: 'AWS::Partition'
+                - 'dynamodb'
+                - Ref: 'AWS::Region'
+                - Ref: 'AWS::AccountId'
+                - 'table/${self:custom.dynamoDBTable}'
+      - Effect: Allow
+        Action:
+          - SNS:Publish
+        Resource:
+          - 'Fn::Join':
+              - ':'
+              - - 'arn'
+                - Ref: 'AWS::Partition'
+                - 'sns'
+                - Ref: 'AWS::Region'
+                - Ref: 'AWS::AccountId'
+                - '${self:custom.iotTopic}'
+
+
+package:
+  patterns:
+    - '!./**'
+    - ./bin/**
+
+functions:
+  go-iot:
+    handler: bin/main
+    events:
+      - http:
+          path: /{any+}
+          method: any
+custom:
+  dynamoDBTable: IDGenerator-local
+  iotTopic: GO_IOT
+  localstack:
+    stages:
+      - local
+    host: http://localhost
+    edgePort: 4566
+    debug: true
